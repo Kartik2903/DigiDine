@@ -1,10 +1,15 @@
 [build]
-command = "pip install -r requirements.txt && python manage.py collectstatic --noinput"
+command = """
+pip install --upgrade pip && 
+pip install -r requirements.txt && 
+python manage.py collectstatic --noinput
+"""
 publish = "staticfiles"
 ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ./"
 
 [build.environment]
 PYTHON_VERSION = "3.11"
+NODE_VERSION = "18"
 
 [[redirects]]
 from = "/*"
