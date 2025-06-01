@@ -1,0 +1,1 @@
+web: gunicorn digidine.wsgi:application 
