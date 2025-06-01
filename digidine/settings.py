@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'unsafe-default-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['yourdomain.com', 'www.yourdomain.com', 'server_ip']
+ALLOWED_HOSTS = ['digidine-m1rl.onrender.com', '.onrender.com']
 
 
 # Application definition

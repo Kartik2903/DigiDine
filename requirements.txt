@@ -6,4 +6,5 @@ python-dotenv==1.0.0
 daphne==4.0.0
 asgiref==3.7.2
 channels-redis==4.1.0
-django-redis==5.4.0 
+django-redis==5.4.0
+razorpay==1.4.1 
