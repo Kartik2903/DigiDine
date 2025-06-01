@@ -3,7 +3,7 @@ services:
     name: digidine
     env: python
     buildCommand: chmod +x build.sh && ./build.sh
-    startCommand: gunicorn digidine.wsgi:application --bind 0.0.0.0:$PORT
+    startCommand: chmod +x start.sh && ./start.sh
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
@@ -14,4 +14,8 @@ services:
       - key: WEB_CONCURRENCY
         value: 4
       - key: ALLOWED_HOSTS
-        value: ".onrender.com" 
+        value: ".onrender.com"
+      - key: PYTHONPATH
+        value: "/opt/render/project/src"
+      - key: DJANGO_PROJECT_NAME
+        value: "digidine" 
