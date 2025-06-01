@@ -18,4 +18,12 @@ services:
       - key: PYTHONPATH
         value: "/opt/render/project/src"
       - key: DJANGO_PROJECT_NAME
-        value: "digidine" 
+        value: "digidine"
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_STORAGE_BUCKET_NAME
+        sync: false
+      - key: AWS_S3_REGION_NAME
+        value: "us-east-1" 
