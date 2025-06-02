@@ -9,18 +9,18 @@
         <div class="bg-white shadow rounded-lg overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
-                    <tr>
+                <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Completed</th>
-                    </tr>
-                </thead>
+                </tr>
+            </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    {% for order in orders %}
-                    <tr>
+                {% for order in orders %}
+                <tr>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">#{{ order.id }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.created_at|date:"M d, Y H:i" }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -35,24 +35,24 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                             <ul class="list-disc ml-4">
-                                {% for item in order.items.all %}
+                        {% for item in order.items.all %}
                                 <li>{{ item.quantity }} x {{ item.menu_item.name }}</li>
-                                {% endfor %}
-                            </ul>
-                        </td>
+                        {% endfor %}
+                        </ul>
+                    </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">₹{{ order.total }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             <input type="checkbox" id="complete-{{ order.id }}" {% if order.status == 'completed' %}checked{% endif %} onchange="toggleOrderComplete({{ order.id }}, this)" class="form-checkbox h-5 w-5 text-green-600">
-                        </td>
-                    </tr>
+                    </td>
+                </tr>
                     {% empty %}
                     <tr>
                         <td colspan="6" class="px-6 py-8 text-center text-gray-400">No orders found.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     </div>
 </div>
 {% endblock %}

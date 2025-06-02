@@ -47,7 +47,7 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default='cash')
-    
+
     def __str__(self):
         return f"Order #{self.id} - {self.created_at.strftime('%Y-%m-%d %H:%M')}"
     

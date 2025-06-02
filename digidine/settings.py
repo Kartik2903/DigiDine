@@ -164,6 +164,12 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read the CSRF cookie
+CSRF_TRUSTED_ORIGINS = [
+    'https://digidine-m1rl.onrender.com',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000'
+]
 X_FRAME_OPTIONS = 'DENY'
 # Uncomment the following if using HTTPS
 # SECURE_SSL_REDIRECT = True

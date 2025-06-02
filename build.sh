@@ -2,6 +2,9 @@
 # exit on error
 set -o errexit
 
+# Set working directory
+cd /opt/render/project/src
+
 # Install Python dependencies
 pip install -r requirements.txt
 
