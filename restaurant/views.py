@@ -45,6 +45,12 @@ def add_to_cart(request, item_id):
         data = json.loads(request.body)
         quantity = int(data.get('quantity', 1))
         
+        if quantity < 1:
+            return JsonResponse({
+                'success': False,
+                'error': 'Quantity must be at least 1'
+            }, status=400)
+        
         menu_item = get_object_or_404(MenuItem, id=item_id)
         cart = request.session.get('cart', {})
         
@@ -64,11 +70,21 @@ def add_to_cart(request, item_id):
             'success': True,
             'cart_count': get_cart_count(request)
         })
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid request data'
+        }, status=400)
+    except ValueError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid quantity value'
+        }, status=400)
     except Exception as e:
         return JsonResponse({
             'success': False,
             'error': str(e)
-        }, status=400)
+        }, status=500)
 
 def cart(request):
     cart = request.session.get('cart', {})
@@ -121,7 +137,7 @@ def staff_login(request):
             return redirect('dashboard')
         else:
             messages.error(request, 'Invalid credentials or insufficient permissions.')
-    
+
     return render(request, 'restaurant/staff_login.html')
 
 @login_required

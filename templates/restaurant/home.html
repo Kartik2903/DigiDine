@@ -61,15 +61,15 @@
     
     <!-- Menu Items Grid -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {% for item in menu_items %}
+            {% for item in menu_items %}
         <div class="bg-white rounded-lg shadow-lg overflow-hidden transform transition duration-300 hover:scale-105">
-            {% if item.image %}
+                {% if item.image %}
             <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-full h-48 object-cover">
             {% else %}
             <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
                 <span class="text-gray-400">No image available</span>
             </div>
-            {% endif %}
+                {% endif %}
             <div class="p-6">
                 <h3 class="text-2xl font-semibold mb-2">{{ item.name }}</h3>
                 <p class="text-gray-600 mb-4">{{ item.description }}</p>
@@ -101,15 +101,40 @@
 </div>
 
 <!-- Toast Notification -->
-<div id="toast" class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-full opacity-0 transition-all duration-300">
+<div id="toast" class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-full opacity-0 transition-all duration-300 z-50">
     Item added to cart!
+</div>
+
+<!-- Error Toast -->
+<div id="error-toast" class="fixed bottom-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-full opacity-0 transition-all duration-300 z-50">
+    Error adding item to cart. Please try again.
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+function showToast(message, isError = false) {
+    const toast = document.getElementById(isError ? 'error-toast' : 'toast');
+    toast.textContent = message;
+    toast.classList.remove('translate-y-full', 'opacity-0');
+    setTimeout(() => {
+        toast.classList.add('translate-y-full', 'opacity-0');
+    }, 2000);
+}
+
 function addToCart(itemId) {
-    const quantity = document.getElementById(`quantity-${itemId}`).value;
+    const quantityInput = document.getElementById(`quantity-${itemId}`);
+    const quantity = parseInt(quantityInput.value);
+    
+    if (isNaN(quantity) || quantity < 1) {
+        showToast('Please enter a valid quantity', true);
+        return;
+    }
+    
+    // Disable the button while processing
+    const button = quantityInput.nextElementSibling;
+    button.disabled = true;
+    button.classList.add('opacity-50');
     
     fetch(`/add-to-cart/${itemId}/`, {
         method: 'POST',
@@ -118,23 +143,36 @@ function addToCart(itemId) {
             'X-CSRFToken': getCookie('csrftoken')
         },
         body: JSON.stringify({
-            quantity: parseInt(quantity)
+            quantity: quantity
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             // Update cart count in navbar
             updateCartBadge(data.cart_count);
-            // Show toast notification
-            const toast = document.getElementById('toast');
-            toast.classList.remove('translate-y-full', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('translate-y-full', 'opacity-0');
-            }, 2000);
+            // Show success toast
+            showToast('Item added to cart!');
+            // Reset quantity to 1
+            quantityInput.value = 1;
+        } else {
+            throw new Error(data.error || 'Failed to add item to cart');
         }
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error adding item to cart. Please try again.', true);
+    })
+    .finally(() => {
+        // Re-enable the button
+        button.disabled = false;
+        button.classList.remove('opacity-50');
+    });
 }
 
 // Helper function to get CSRF token
@@ -152,5 +190,16 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
+// Add touch event listeners for mobile
+document.addEventListener('DOMContentLoaded', function() {
+    const addToCartButtons = document.querySelectorAll('button[onclick^="addToCart"]');
+    addToCartButtons.forEach(button => {
+        button.addEventListener('touchstart', function(e) {
+            e.preventDefault(); // Prevent double-tap zoom on mobile
+        });
+    });
+});
 </script>
+{% endblock %} 
 {% endblock %} 
