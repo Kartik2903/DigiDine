@@ -76,11 +76,19 @@
                 <div class="flex justify-between items-center">
                     <span class="text-xl font-bold text-indigo-600">₹{{ item.price }}</span>
                     <div class="flex items-center space-x-2">
-                        <input type="number" name="quantity" value="1" min="1" max="10" 
+                        <input type="number" 
+                               name="quantity" 
+                               value="1" 
+                               min="1" 
+                               max="10" 
                                class="w-16 px-2 py-1 border border-gray-300 rounded"
-                               id="quantity-{{ item.id }}">
-                        <button onclick="addToCart({{ item.id }})" 
-                                class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition duration-300">
+                               id="quantity-{{ item.id }}"
+                               inputmode="numeric"
+                               pattern="[0-9]*">
+                        <button type="button"
+                                data-item-id="{{ item.id }}"
+                                class="add-to-cart-btn bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition duration-300"
+                                style="-webkit-tap-highlight-color: transparent;">
                             Add to Cart
                         </button>
                     </div>
@@ -136,15 +144,26 @@ function addToCart(itemId) {
     button.disabled = true;
     button.classList.add('opacity-50');
     
+    // Get CSRF token from meta tag or cookie
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || getCookie('csrftoken');
+    
+    if (!csrfToken) {
+        showToast('Security token missing. Please refresh the page.', true);
+        button.disabled = false;
+        button.classList.remove('opacity-50');
+        return;
+    }
+    
     fetch(`/add-to-cart/${itemId}/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
+            'X-CSRFToken': csrfToken
         },
         body: JSON.stringify({
             quantity: quantity
-        })
+        }),
+        credentials: 'same-origin' // Include cookies in the request
     })
     .then(response => {
         if (!response.ok) {
@@ -191,13 +210,38 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// Add touch event listeners for mobile
+// Initialize add to cart buttons
 document.addEventListener('DOMContentLoaded', function() {
-    const addToCartButtons = document.querySelectorAll('button[onclick^="addToCart"]');
+    const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+    
     addToCartButtons.forEach(button => {
-        button.addEventListener('touchstart', function(e) {
-            e.preventDefault(); // Prevent double-tap zoom on mobile
+        // Handle both click and touch events
+        ['click', 'touchstart'].forEach(eventType => {
+            button.addEventListener(eventType, function(e) {
+                e.preventDefault(); // Prevent default behavior
+                e.stopPropagation(); // Stop event propagation
+                
+                // Add a small delay for touch events on Android
+                if (eventType === 'touchstart') {
+                    setTimeout(() => {
+                        const itemId = this.dataset.itemId;
+                        addToCart(itemId);
+                    }, 50);
+                } else {
+                    const itemId = this.dataset.itemId;
+                    addToCart(itemId);
+                }
+            }, { passive: false });
         });
+    });
+    
+    // Prevent zoom on double tap for number inputs
+    const quantityInputs = document.querySelectorAll('input[type="number"]');
+    quantityInputs.forEach(input => {
+        input.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            this.focus();
+        }, { passive: false });
     });
 });
 </script>
